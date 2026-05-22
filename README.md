@@ -35,7 +35,7 @@
 1. **Склонируйте репозиторий** или скачайте файл `auto_sortir.py`:
 ```bash
    git clone https://github.com/skeletofall/auto-file-sorter.git
-   cd auto-file-sorter
+   cd auto-sortir
 ```
 
 2. **Запустите скрипт**:
