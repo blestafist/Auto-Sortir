@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import os
+import shutil
+from pathlib import Path
+import logging
+from datetime import datetime
+
+def setup_logging():
+    log_file = Path.home() / "Downloads" / "auto_organizer.log"
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file, encoding='utf-8'),
+            logging.StreamHandler()
+        ]
+    )
+
+def get_file_category(file_extension):
+    categories = {
+        'Images': ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp'],
+        'Documents': ['.pdf', '.doc', '.docx', '.txt', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx'],
+        'Archives': ['.zip', '.rar', '.7z', '.tar', '.gz'],
+        'Audio': ['.mp3', '.wav', '.flac', '.aac'],
+        'Video': ['.mp4', '.avi', '.mov', '.mkv', '.wmv'],
+        'Code': ['.py', '.js', '.html', '.css', '.java', '.cpp', '.c', '.php'],
+        'Executables': ['.exe', '.msi', '.dmg', '.deb'],
+        'Torrents': ['.torrent'],
+    }
+    for category, extensions in categories.items():
+        if file_extension.lower() in extensions:
+            return category
+    return 'Other'
+
+def organize_downloads():
+    downloads_path = Path.home() / "Downloads"
+    if not downloads_path.exists():
+        logging.error("Папка Downloads не найдена!")
+        return
+
+    processed_count = 0
+    skipped_count = 0
+
+    for item in downloads_path.iterdir():
+        if item.is_dir() or item.name.startswith('.') or item.name == 'auto_organizer.log':
+            continue
+
+        file_extension = item.suffix
+        category = get_file_category(file_extension)
+
+        category_path = downloads_path / category
+        category_path.mkdir(exist_ok=True)
+
+        destination = category_path / item.name
+        counter = 1
+        while destination.exists():
+            stem = item.stem
+            new_name = f"{stem}_{counter}{item.suffix}"
+            destination = category_path / new_name
+            counter += 1
+
+        try:
+            shutil.move(str(item), str(destination))
+            logging.info(f"Перемещен: {item.name} -> {category}/")
+            processed_count += 1
+        except Exception as e:
+            logging.error(f"Ошибка при перемещении {item.name}: {e}")
+            skipped_count += 1
+
+    preserve_folders = ['Images', 'Documents', 'Archives', 'Audio', 'Video', 'Code', 'Executables', 'Torrents', 'Other']
+    for folder in downloads_path.iterdir():
+        if folder.is_dir() and folder.name not in preserve_folders:
+            try:
+                if not any(folder.iterdir()):
+                    folder.rmdir()
+                    logging.info(f"Удалена пустая папка: {folder.name}")
+            except Exception as e:
+                logging.error(f"Ошибка при удалении папки {folder.name}: {e}")
+
+    logging.info(f"Готово! Обработано: {processed_count}, Пропущено: {skipped_count}")
+
+if __name__ == "__main__":
+    print("🚀 Запуск автосортировщика файлов...")
+    print(f"Время начала: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("-" * 50)
+    setup_logging()
+    organize_downloads()
+    print("-" * 50)
+    print("✅ Сортировка завершена!")
+    input("Нажмите Enter для выхода...")
