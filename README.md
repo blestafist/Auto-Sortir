@@ -49,12 +49,14 @@
 ```
 
 3. **Настройте config.json** (опционально):
-   - Измените `target_directory` на нужную папку (по умолчанию `~/Downloads`)
+   - Измените `target_directory` на нужную папку
+     - Windows: `%USERPROFILE%\\Downloads` (по умолчанию)
+     - Linux/Mac: `~/Downloads`
    - Добавьте свои категории и расширения файлов
    - Пример:
 ```json
 {
-  "target_directory": "~/Downloads",
+  "target_directory": "%USERPROFILE%\\Downloads",
   "categories": {
     "Images": [".jpg", ".png", ".gif"],
     "MyCustomCategory": [".custom", ".special"]
@@ -98,6 +100,7 @@
 - Расширения должны начинаться с точки (`.jpg`, а не `jpg`)
 - Регистр не важен (`.JPG` и `.jpg` обрабатываются одинаково)
 - Файлы без категории попадут в папку `Other`
+- Для Windows используйте `%USERPROFILE%\\Downloads`, для Linux/Mac — `~/Downloads`
 
 ## 🤝 Contributing
 

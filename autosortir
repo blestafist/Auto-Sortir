@@ -16,6 +16,12 @@ def load_config():
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
             config = json.load(f)
+
+        # Expand Windows environment variables
+        target_dir = config.get('target_directory', '~/Downloads')
+        target_dir = os.path.expandvars(target_dir)
+        config['target_directory'] = target_dir
+
         return config
     except Exception as e:
         logging.error(f"Ошибка при чтении конфига: {e}")
@@ -105,4 +111,3 @@ if __name__ == "__main__":
 
     print("-" * 50)
     print("✅ Сортировка завершена!")
-    input("Нажмите Enter для выхода...")
